@@ -1,3 +1,9 @@
+{{ config(
+    database='workspace',
+    schema='fpl_transformed'
+) }}
+
+
 WITH current_gw AS (
     SELECT MIN(gameweek) as next_gw
     FROM workspace.fpl_raw.fixtures
