@@ -98,34 +98,31 @@ next_5 AS (
     SELECT
         team_id,
 
-        MAX(CASE WHEN gameweek = (SELECT next_gw FROM current_gw)
-            THEN fixture_ticker END) AS fixture_gw1,
+        CONCAT_WS(' | ',
+            MAX(CASE WHEN gameweek = (SELECT next_gw FROM current_gw)
+                THEN fixture_ticker END),
 
-        MAX(CASE WHEN gameweek = (SELECT next_gw + 1 FROM current_gw)
-            THEN fixture_ticker END) AS fixture_gw2,
+            MAX(CASE WHEN gameweek = (SELECT next_gw + 1 FROM current_gw)
+                THEN fixture_ticker END),
 
-        MAX(CASE WHEN gameweek = (SELECT next_gw + 2 FROM current_gw)
-            THEN fixture_ticker END) AS fixture_gw3,
+            MAX(CASE WHEN gameweek = (SELECT next_gw + 2 FROM current_gw)
+                THEN fixture_ticker END),
 
-        MAX(CASE WHEN gameweek = (SELECT next_gw + 3 FROM current_gw)
-            THEN fixture_ticker END) AS fixture_gw4,
+            MAX(CASE WHEN gameweek = (SELECT next_gw + 3 FROM current_gw)
+                THEN fixture_ticker END),
 
-        MAX(CASE WHEN gameweek = (SELECT next_gw + 4 FROM current_gw)
-            THEN fixture_ticker END) AS fixture_gw5,
+            MAX(CASE WHEN gameweek = (SELECT next_gw + 4 FROM current_gw)
+                THEN fixture_ticker END)
+        ) AS next_5_fixtures,
 
-        -- BGW counted as difficulty 5
         ROUND(AVG(6 - difficulty), 2) AS fixture_score,
-
         COUNT(CASE WHEN fixture_ticker != 'BGW' THEN 1 END) AS fixtures_in_next_5,
-
         ROUND(AVG(difficulty), 2) AS avg_difficulty,
-
         MIN(difficulty) AS easiest_upcoming
 
     FROM player_fixtures
     GROUP BY team_id
 )
-
 SELECT
     p.player_id,
     p.player_name,
@@ -133,16 +130,11 @@ SELECT
     p.position_name,
     p.price_m,
 
+    n.next_5_fixtures,
     n.fixtures_in_next_5,
     n.avg_difficulty,
     n.fixture_score,
-    n.easiest_upcoming,
-
-    n.fixture_gw1,
-    n.fixture_gw2,
-    n.fixture_gw3,
-    n.fixture_gw4,
-    n.fixture_gw5
+    n.easiest_upcoming
 
 FROM workspace.fpl_raw.players p
 LEFT JOIN next_5 n
