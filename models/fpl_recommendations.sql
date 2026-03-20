@@ -13,14 +13,9 @@ fixtures AS (
         fixture_score,
         fixtures_in_next_5,
         avg_difficulty,
-        easiest_upcoming
+        easiest_upcoming,
+        next_5_fixtures
     FROM {{ ref('fixture_difficulty') }}
-),
-
-current_gw AS (
-    SELECT MIN(gameweek) as next_gw
-    FROM workspace.fpl_raw.fixtures
-    WHERE finished = false
 ),
 
 upcoming AS (
@@ -107,16 +102,7 @@ combined AS (
         d.avg_difficulty,
         d.easiest_upcoming,
         -- Next 5 fixture ticker
-        n.fixture_gw1,
-        n.fixture_gw2,
-        n.fixture_gw3,
-        n.fixture_gw4,
-        n.fixture_gw5,
-        n.gw1_num,
-        n.gw2_num,
-        n.gw3_num,
-        n.gw4_num,
-        n.gw5_num,
+        d.next_5_fixtures,
         -- FPL SCORE FORMULA
         ROUND(
             (f.form_score         * 0.50) +
